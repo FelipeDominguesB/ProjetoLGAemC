@@ -1,6 +1,8 @@
 /bin
 /obj
 ProjetoLogica.cbp
+*.txt
+*.bin
 .txt
 .bin
 /.txt
