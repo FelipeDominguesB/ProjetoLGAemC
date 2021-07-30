@@ -96,7 +96,7 @@ int main()
 }
 
 //Função para exibição do menu caso o usuário seja master
-char menu (void)
+char menu ()
 {
     //Declara um caractér que vai ser retornado como resposta das escolhas do menu
     char opc;
@@ -115,6 +115,41 @@ char menu (void)
 
     //Retorna um caractér
     return opc;
+
+}
+
+//Mostra o menu caso o usuário seja o master
+void mostrarMenuMaster()
+{
+    //Char para a escolha do usuário
+    char escolha;
+    do{
+        //Chama o menu e armazena o retorno na variável
+        escolha = menu();
+
+        //Switch para prosseguir de acordo com a escolha do usuário
+        switch(escolha)
+        {
+            case '1': gravarQuestionario(); break;
+            case '2': visualizarQuestionario(); break;
+            case '3': realizarTeste(); break;
+            case '4': sobreOTeste(); break;
+            case 'F':
+            case 'f':
+                printf("\nVocê escolheu sair.\n");
+                break;
+
+            default:
+                printf("Escolha um valor válido!");
+        }
+
+
+        fflush(stdin);
+        getchar();
+        system("cls");
+
+    //Repete enquanto não for dado o valor de sair
+    }while(escolha != 'f' && escolha != 'F');
 
 }
 
@@ -467,38 +502,5 @@ void gravarQuestionario()
 
 }
 
-//Mostra o menu caso o usuário seja o master
-void mostrarMenuMaster()
-{
-    //Char para a escolha do usuário
-    char escolha;
-    do{
-        //Chama o menu e armazena o retorno na variável
-        escolha = menu();
 
-        //Switch para prosseguir de acordo com a escolha do usuário
-        switch(escolha)
-        {
-            case '1': gravarQuestionario(); break;
-            case '2': visualizarQuestionario(); break;
-            case '3': realizarTeste(); break;
-            case '4': sobreOTeste(); break;
-            case 'F':
-            case 'f':
-                printf("\nVocê escolheu sair.\n");
-                break;
-
-            default:
-                printf("Escolha um valor válido!");
-        }
-
-
-        fflush(stdin);
-        getchar();
-        system("cls");
-
-    //Repete enquanto não for dado o valor de sair
-    }while(escolha != 'f' && escolha != 'F');
-
-}
 
