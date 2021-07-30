@@ -14,12 +14,16 @@
 //declarando o nome e prontuário como variáveis globais, para que possa ser utilizado de maneira abrangente pelo código
 char nome[50], prontuario[14];
 
-int sobreOTeste();
-char menu(void);
+//Prototipação das funções
+char menu();
 void realizarTeste();
 void gravarQuestionario();
 void mostrarMenuMaster();
+void visualizarQuestionario();
+int sobreOTeste();
 
+
+//Estrutura pra registrar cada pergunta do teste
 typedef struct
 {
 	int nroFrases;
@@ -36,9 +40,10 @@ typedef struct
 reregFrases;
 
 
-
+//Istanciando todas as frases de cada questão através da struct de registro
 reregFrases  VariavelRegistro [5] = {
 
+    //Cada registro está entre chaves
 	{1,"Eu tomo decisões importantes baseadx em",0, "intuição",0,"o que me soa melhor",0,"o que me parece melhor",0,"um estudo preciso e minucioso do assunto"},
 	{2, "Durante uma discussão sou mais influenciadx por",0,"se eu entro em contato ou não com o sentimentos reais do outro",0,"o tom de voz da outra pessoa",0,
         "se eu posso ou não ver o argumento da outra pessoa",0,"a lógica do argumento da outra pessoa"},
@@ -52,7 +57,7 @@ reregFrases  VariavelRegistro [5] = {
 
 
 
-
+//Método principal, faz o login no sistema
 int main()
 {
 
@@ -90,10 +95,10 @@ int main()
     return 0;
 }
 
-
-
+//Função para exibição do menu caso o usuário seja master
 char menu (void)
 {
+    //Declara um caractér que vai ser retornado como resposta das escolhas do menu
     char opc;
     printf ("\n=========================================");
     printf ("\nTESTE DE SISTEMAS REPRESENTACIONAIS");
@@ -107,6 +112,8 @@ char menu (void)
     printf ("\n                   Escolha sua opção:\t");
     opc = getche ();
     fflush (stdin);
+
+    //Retorna um caractér
     return opc;
 
 }
@@ -196,30 +203,46 @@ void visualizarQuestionario()
     getch ();
 }
 
+
+//Método para realizar o teste
 void realizarTeste (void)
 {
+
+    //Limpa a tela antes de exibir qualquer coisa
     system("cls");
 
-
+    //Instancia uma variável pra pegar o tipo de perfil do usuário e um contador para controlar repetições
     char tipoPerfil[15];
-
-    FILE * arq;
-    arq = fopen ("TESTE_SISTEMA_REPRESENTACIONAL.DAT", "r");
     int counter = 0;
 
+    //Define um ponteiro de arquivo, onde leremos a informação do teste para poder exibir
+    FILE * arq;
+    arq = fopen ("TESTE_SISTEMA_REPRESENTACIONAL.DAT", "r");
+
+    /*
+        Instanciamos dois registros referentes ao questionário,
+        um para podermos armazenar as frases e respostas de cada questão
+        outro para servir de registro auxiliar
+    */
     reregFrases newFrases[5];
     reregFrases regaux;
+
+    //Se não houver arquivo de registro ou dar falha, para a função
     if(arq == NULL)
     {
-        printf("Não há registro do teste no sistema");
+        printf("Não há registro ou não foi possível ler o teste no sistema");
         getch();
         exit(0);
 
     }
 
+    //Loop para ler até o fim do arquivo
     while(!feof(arq))
     {
+        //Lê o registro da linha e coloca na variável auxiliar
         fread ( &regaux, sizeof(regaux), 1, arq );
+
+        //Se houver erro ao ler o arquivo, o loop é parado
 		if (ferror(arq))
 		{
 			printf ("\nErro ao ler o registro do CADASTRO.DAT");
@@ -229,22 +252,30 @@ void realizarTeste (void)
 		/* Testar se leu EOF */
 		if ( !feof(arq) )
 		{
+		    //Se não, o registro auxiliar passa seus valores para o vetor de registros no contador especifico e vai pro próximo
 		    newFrases[counter] = regaux;
             counter++;
 	   }
     }
+    //Repete até ler o arquivo inteiro e fecha
     fclose (arq);
 
+
+    //Declara variáveis auxiliares para pegar o valor de cada pergunta e variáveis para acrescentar no total de cada área
     int aux1, aux2, aux3, aux4;
     int totalAuditivo = 0, totalCinestesico = 0, totalDigital = 0, totalVisual = 0;
+
+    //Loop do teste, uma vez pra cada pergunta
     for(counter = 0; counter < 5; counter++)
     {
+        //Exibe cada uma das frases
         printf("\n%d - %s\n", newFrases[counter].nroFrases, newFrases[counter].Frase);
         printf("a) %s\n", newFrases[counter].item_1);
         printf("b) %s\n", newFrases[counter].item_2);
         printf("c) %s\n", newFrases[counter].item_3);
         printf("d) %s\n", newFrases[counter].item_4);
 
+        //Pega cada uma das alternativas, não deixa elas sairem do range e também garante que não há repetições
         do{
 	    	printf("\n[a] -->");
 	    	scanf ("%d", &aux1);
@@ -270,17 +301,14 @@ void realizarTeste (void)
 
 	    }while ((aux4 > 4 || aux4 < 1) || (aux4 == aux1 || aux4 == aux2 || aux4 == aux3));
 
-	    newFrases[counter].cinestesico = aux1;
-	    newFrases[counter].auditivo = aux2;
-	    newFrases[counter].visual = aux3;
-	    newFrases[counter].digital = aux4;
-
+        //Adiciona ao total de cada caracteristica
 	    totalCinestesico += aux1;
 	    totalAuditivo += aux2;
 	    totalVisual += aux3;
 	    totalDigital += aux4;
     }
 
+    //Tira o percentual total de cada uma das caracteristicas e pega a maior
     totalCinestesico *= 2;
     strcpy(tipoPerfil, "Cinestésico");
 
@@ -297,19 +325,24 @@ void realizarTeste (void)
     printf("%d\n", totalCinestesico);
     printf("%d\n", totalVisual);
     printf("%d\n", totalDigital);
-    char pathFile[50];
+
+    //Variáveis para armazenar o nome do arquivo txt
+    char pathFileName[50];
     char filepath[256];
 
-    strcat(pathFile, "Resultado_");
-    strcat(pathFile, nome);
-    strcat(pathFile, "_");
-    strcat(pathFile, prontuario);
-    strcat(pathFile, ".txt");
-    printf("%s", pathFile);
+    //Monta o nome do arquivo
+    strcat(pathFileName, "Resultado_");
+    strcat(pathFileName, nome);
+    strcat(pathFileName, "_");
+    strcat(pathFileName, prontuario);
+    strcat(pathFileName, ".txt");
 
 
-    snprintf (filepath, sizeof(filepath), "%s", pathFile);
+    //Após terminar de montar, cria um arquivo com o nome no formato especificado
+    snprintf (filepath, sizeof(filepath), "%s", pathFileName);
     FILE * file = fopen(filepath, "w");
+
+    //Caso não seja possível gravar o arquivo, é exibido o perfil representacional no próprio console
     if (!file) {
         printf("Não foi possível registrar o arquivo.\nResultado: \n");
         printf("\nPorcentagem cinestesico: %d %%\n", totalCinestesico);
@@ -317,9 +350,11 @@ void realizarTeste (void)
         printf("Porcentagem visual: %d %%\n", totalVisual);
         printf("Porcentagem digital: %d %%\n", totalDigital);
         printf("Seu perfil: %s\n", tipoPerfil);
+        getch();
+        return;
     }
 
-
+    //Escreve o material do arquivo
     fprintf(file, "==================== PERFIL REPRESENTACIONAL DE %s ====================\n", nome);
     fprintf(file, "%d Visual    %d Auditivo    %d Cinestésico   %d Digital\n", totalVisual, totalAuditivo, totalCinestesico, totalDigital);
     fprintf(file, "=============================================================================\n");
@@ -333,19 +368,21 @@ void realizarTeste (void)
     fprintf(file, "Seu perfil é %s\n", tipoPerfil);
     fprintf(file, "==============================================================================\n");
 
+    //Termina a gravação e exibe o arquivo
     fclose(file);
-
-    printf("%s\n", filepath);
     system(filepath);
     getch();
 }
 
+//Função pra exibir documento que fala sobre o teste
 int sobreOTeste()
 {
 
     fflush(stdin);
     system("cls");
 
+
+    //Cria referencia de arquivo, sai do método caso não consiga criar
     FILE  * arq;
     arq = fopen ("REFERENCIAL_TEORICO.txt" , "w+");
     if(arq == NULL)
@@ -354,6 +391,8 @@ int sobreOTeste()
         return 1;
 
     }
+
+    //Imprime o conteúdo no arquivo
     fprintf (arq , "\n===================================");
     fprintf (arq , "\nSOBRE O TESTE");
     fprintf (arq , "\n===================================");
@@ -390,27 +429,37 @@ int sobreOTeste()
     printf ("\n\n\nInformações sobre o teste abertas com sucesso!\n\n\n");
     printf ("==========================================================");
 
+    //Fecha o arquivo e abre no Notepad
     fclose (arq);
     system ("REFERENCIAL_TEORICO.txt");
     return 0;
 }
 
+//Função para gravar o questionário no sistema
 void gravarQuestionario()
 {
+    //Cria o indice pra percorrer os registros
     int indice;
+
+    //Faz referencia ao arquivo ponto dat e cria em modo escrita
     FILE * arq;
     arq = fopen ("TESTE_SISTEMA_REPRESENTACIONAL.DAT", "w");
 
+    //Checa se abriu, se não, sai do programa
     if ( arq == NULL )
 	{
 		printf ("\nErro ao abrir o arquivo!!!!!");
 		getch();
 		exit(0);
 	}
+
+    //Grava cada um dos registros do vetor de struct em um arquivo
     for (indice=0 ; indice <5 ; indice++)
     {
         fwrite ( &VariavelRegistro [indice], sizeof (VariavelRegistro)[indice],1,arq);
     }
+
+    //Fecha o arquivo e retorna
 
     fclose (arq);
     printf ("\n\aSeu arquivo foi gerado com sucesso!");
@@ -418,12 +467,16 @@ void gravarQuestionario()
 
 }
 
+//Mostra o menu caso o usuário seja o master
 void mostrarMenuMaster()
 {
+    //Char para a escolha do usuário
     char escolha;
     do{
-
+        //Chama o menu e armazena o retorno na variável
         escolha = menu();
+
+        //Switch para prosseguir de acordo com a escolha do usuário
         switch(escolha)
         {
             case '1': gravarQuestionario(); break;
@@ -439,11 +492,12 @@ void mostrarMenuMaster()
                 printf("Escolha um valor válido!");
         }
 
+
         fflush(stdin);
         getchar();
         system("cls");
 
-
+    //Repete enquanto não for dado o valor de sair
     }while(escolha != 'f' && escolha != 'F');
 
 }
